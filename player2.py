@@ -5,6 +5,7 @@ from twisted.internet.protocol import ClientFactory
 from twisted.internet.protocol import Protocol
 from twisted.internet import reactor
 from threading import Thread
+import time
 
 ''' some global constants '''
 ###################################
@@ -37,6 +38,8 @@ message_broker = MessageBroker()
 class TPCSend(Protocol):
     def connectionMade(self):
         print('connection made! TPCSend')
+        sender.myconn.transport.write('connect'.encode('ascii', 'ignore'))
+        #sender.myconn.transport.write('start'.encode('ascii', 'ignore'))
         pass
     def dataReceived(self, data):
         pass
@@ -52,6 +55,12 @@ class TPCReceive(Protocol):
         print('connection made! TPCReceive')
         pass
     def dataReceived(self, data):
+        data = data.decode('utf-8')
+        print(data)
+        if data == 'begin!':
+            sender.myconn.transport.write('begin!'.encode('ascii', 'ignore'))
+            main()
+            return None
         message_broker.messages_received.append(data)
         pass
 
@@ -122,15 +131,19 @@ class Ball(pygame.sprite.Sprite):
     def update(self):
         pass
         
+receiver = TPCReceiveFactory()
+reactor.listenTCP(40004, receiver)
+
+sender = TPCSendFactory()
+reactor.connectTCP('localhost', 41004, sender)
+
+
+#sender.myconn.transport.write('begin!')
+
+Thread(target=reactor.run, args=(False, )).start()
 
 
 def main():
-    sender = TPCSendFactory()
-    reactor.connectTCP('localhost', 42004, sender)
-    receiver = TPCReceiveFactory()
-    reactor.listenTCP(43004, receiver)
-
-    Thread(target=reactor.run, args=(False, )).start()
 
     pygame.init()
     screen = pygame.display.set_mode(SCREEN_SIZE)
@@ -209,6 +222,3 @@ def main():
         screen.blit(background, (0, 0))
         allsprites.draw(screen)
         pygame.display.flip()
-
-if __name__ == '__main__':
-    main()

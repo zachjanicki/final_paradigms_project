@@ -47,6 +47,7 @@ message_broker = MessageBroker()
 class TPCSend(Protocol):
     def connectionMade(self):
         print('connection made! TPCSend')
+        main()
         pass
     def dataReceived(self, data):
         pass
@@ -62,6 +63,12 @@ class TPCReceive(Protocol):
         print('connection made! TPCReceive')
         pass
     def dataReceived(self, data):
+        data = data.decode('utf-8')
+        print(data)
+        if data == 'connect':
+            reactor.connectTCP('localhost', 40004, sender)
+        if data == 'begin!':
+            main()
         message_broker.messages_received.append(data)
         pass
 
@@ -151,31 +158,28 @@ class MyFactory(protocol.Factory):
         self.lc.start(.0166)
 '''
 
-#################################################
-# game set up happens globally
-
-######################################################
-
-def main():
-
-    ##############################################
+##############################################
     # tcp connections
-    sender = TPCSendFactory()
-    reactor.connectTCP('localhost', 40004, sender)
-    receiver = TPCReceiveFactory()
-    reactor.listenTCP(41004, receiver)
+receiver = TPCReceiveFactory()
+reactor.listenTCP(41004, receiver)
 
-    #f = LoopingCall(main)
-    #f.start(.016666)
+sender = TPCSendFactory()
 
-    #testFactory = MyFactory()
-    print('should be making tcp connections')
-    
-    print('should be done making tcp connections')
-    #reactor.run()
-    Thread(target=reactor.run, args=(False, )).start()
+#sender.myconn.transport.write('begin!')
+
+#f = LoopingCall(main)
+#f.start(.016666)
+
+#testFactory = MyFactory()
+print('should be making tcp connections')
+
+print('should be done making tcp connections')
+#reactor.run()
+Thread(target=reactor.run, args=(False, )).start()
     ################################################
 
+def main():
+    sender.myconn.transport.write('begin!'.encode('ascii', 'ignore'))
     pygame.init()
     screen = pygame.display.set_mode(SCREEN_SIZE)
     pygame.display.set_caption('Brick Breaker Player 1')
@@ -281,10 +285,6 @@ def main():
         allsprites.draw(screen)
         pygame.display.flip()
 
-if __name__ == '__main__':
-    print('here')
-
-    main()
 
 
 
