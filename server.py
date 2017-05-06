@@ -1,15 +1,25 @@
 from twisted.internet.protocol import ClientFactory
 from twisted.internet.protocol import Protocol
 from twisted.internet import reactor
+import time
+
+class conn_count(object):
+    def __init__(self):
+        self.count = 0
+
+c = conn_count()
 
 class P1Listen(Protocol):
     def connectionMade(self):
+        c.count += 1
         print('listening for messages from p1')
-        reactor.connectTCP('localhost', 41004, p2S)
+        reactor.connectTCP('localhost', 43004, p2S)
         pass
 
     def dataReceived(self, data):
-        p2S.myconn.transport.write(data)
+        print(data)
+        if c.count > 1:
+            p2S.myconn.transport.write(data)
         pass
 
 class P1ListenFactory(ClientFactory):
@@ -24,6 +34,7 @@ class P1Send(Protocol):
         pass
 
     def dataReceived(self, data):
+        print('data to be sent to p1', data)
         pass
 
 class P1SendFactory(ClientFactory):
@@ -34,12 +45,15 @@ class P1SendFactory(ClientFactory):
 
 class P2Listen(Protocol):
     def connectionMade(self):
+        c.count += 1
         print('listening for messages from p2')
-        reactor.connectTCP('localhost', 43004, p1S)
+        reactor.connectTCP('localhost', 41004, p1S)
         pass
 
     def dataReceived(self, data):
-        p1S.myconn.transport.write(data)
+        print(data)
+        if c.count > 1:
+            p1S.myconn.transport.write(data)
         pass
 
 class P2ListenFactory(ClientFactory):
@@ -54,6 +68,7 @@ class P2Send(Protocol):
         pass
 
     def dataReceived(self, data):
+        print('data to be sent to p2', data)
         pass
 
 class P2SendFactory(ClientFactory):

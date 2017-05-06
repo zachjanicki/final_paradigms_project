@@ -11,6 +11,7 @@ import math
 from twisted.internet.protocol import ClientFactory
 from twisted.internet.protocol import Protocol
 from twisted.internet import reactor
+from twisted.internet.task import LoopingCall
 import time
 
 from threading import Thread
@@ -134,19 +135,46 @@ class Ball(pygame.sprite.Sprite):
     def update(self):
         if self.speed:
             self.rect = self.rect.move(self.speed)
-        
+ 
+'''       
+class MyProtocol(protocol.Protocol):
+    def connectionMade(self):
+        self.factory.clientConnectionMade(self)
+    def connectionLost(self, reason):
+        self.factory.clientConnectionLost(self)
 
+class MyFactory(protocol.Factory):
+    protocol = MyProtocol
+    def __init__(self):
+        self.clients = []
+        self.lc = LoopingCall(main)
+        self.lc.start(.0166)
+'''
+
+#################################################
+# game set up happens globally
+
+######################################################
 
 def main():
 
+    ##############################################
+    # tcp connections
     sender = TPCSendFactory()
     reactor.connectTCP('localhost', 40004, sender)
     receiver = TPCReceiveFactory()
     reactor.listenTCP(41004, receiver)
 
-    #Thread(target=reactor.run, args=(False,)).start()
+    #f = LoopingCall(main)
+    #f.start(.016666)
 
-    print('here')
+    #testFactory = MyFactory()
+    print('should be making tcp connections')
+    
+    print('should be done making tcp connections')
+    #reactor.run()
+    Thread(target=reactor.run, args=(False, )).start()
+    ################################################
 
     pygame.init()
     screen = pygame.display.set_mode(SCREEN_SIZE)
@@ -201,7 +229,7 @@ def main():
         print('running')
         if ball1.speed == None:
             ball1.speed = [5, 5]
-        clock.tick(30)
+        clock.tick(120)
         for e in pygame.event.get():
             if e.type == QUIT:
                 running = False
@@ -234,50 +262,29 @@ def main():
         if ball1.rect.top < 0 + BALL_SIZE[1]: # top
             ball1.speed[1] *= -1
 
-        '''
-        message_broker.messages_to_send.append('hello!')
+        
+        message_broker.messages_to_send.append('hello from p1!')
         # send necessary data to p2 client
         for message in message_broker.messages_to_send:
-            print(message)
             sender.myconn.transport.write(message.encode('ascii', 'ignore'))
         message_broker.messages_to_send = []
 
         # for each message coming from p2, do something about it
         for message in message_broker.messages_received:
             print('Received:', message)
+            del message
 
         message_broker.messages_received = []
-        '''
+        
         allsprites.update()
         screen.blit(background, (0, 0))
         allsprites.draw(screen)
         pygame.display.flip()
 
-
 if __name__ == '__main__':
+    print('here')
+
     main()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

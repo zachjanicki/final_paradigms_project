@@ -4,6 +4,7 @@ import math
 from twisted.internet.protocol import ClientFactory
 from twisted.internet.protocol import Protocol
 from twisted.internet import reactor
+from threading import Thread
 
 ''' some global constants '''
 ###################################
@@ -129,11 +130,11 @@ def main():
     receiver = TPCReceiveFactory()
     reactor.listenTCP(43004, receiver)
 
-    reactor.run()
+    Thread(target=reactor.run, args=(False, )).start()
 
     pygame.init()
     screen = pygame.display.set_mode(SCREEN_SIZE)
-    pygame.display.set_caption('Brick Breaker Player 1')
+    pygame.display.set_caption('Brick Breaker Player 2')
     background = pygame.Surface(screen.get_size())
     background = background.convert()
     background.fill((0, 0, 0))
@@ -199,7 +200,10 @@ def main():
 
         # for each message coming from p2, do something about it
         for message in message_broker.messages_received:
-            print('message received')
+            print('Received:', message)
+            del message
+
+        message_broker.messages_received = []
 
         allsprites.update()
         screen.blit(background, (0, 0))
