@@ -130,7 +130,7 @@ def main(objects):
             allsprites.remove(obj)
 
         ### TODO:: send tcp message
-        if ball2.rect.colliderect(obj.rect) and obj.obj_type == 'paddle' and obj.player_number == 1:
+        if ball2.rect.colliderect(obj.rect) and obj.obj_type == 'paddle' and obj.player_number == 2:
             # then we have collided with our own paddle
             ball2.speed[1] *= -1
 
