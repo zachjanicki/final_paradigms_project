@@ -104,11 +104,15 @@ def main(objects):
             running = False
         elif e.type == KEYDOWN and e.key == K_RIGHT:
             paddle2.move('right')
+            ### TODO:: send tcp message of paddle movement
+            m = 'paddle move right'
+            message_broker.messages_to_send.append(m)
         elif e.type == KEYDOWN and e.key == K_LEFT:
             paddle2.move('left')
-
-    message_broker.messages_to_send.append('hello from p2!')
-    # send necessary data to p2 client
+            ### TODO:: send tcp message of paddle movement
+            m = 'paddle move left'
+            message_broker.messages_to_send.append(m)
+    print(message_broker.messages_to_send)
     for message in message_broker.messages_to_send:
         sender.myconn.transport.write(message.encode('ascii', 'ignore'))
     message_broker.messages_to_send = []
@@ -154,10 +158,10 @@ class TPCReceive(Protocol):
         pass
     def dataReceived(self, data):
         data = data.decode('utf-8')
-        if data == 'begin!hello from p1!':
+        if data == 'begin!':
             sender.myconn.transport.write('begin!'.encode('ascii', 'ignore'))
             f = LoopingCall(main, (obj_dict))
-            f.start(.1)
+            f.start(.0166)
 
             return None
         message_broker.messages_received.append(data)

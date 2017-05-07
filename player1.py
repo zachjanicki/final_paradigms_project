@@ -107,6 +107,9 @@ def main(objects):
     allsprites = objects['allsprites']
     if ball1.speed == None:
         ball1.speed = [5, 5]
+    if ball2.speed == None:
+        ### TODO:: send tcp message of current speed
+        ball2.speed = [-5, -5]
     #clock.tick(120)
     for e in pygame.event.get():
         if e.type == QUIT:
@@ -126,6 +129,16 @@ def main(objects):
             ball1.speed[1] *= -1
             allsprites.remove(obj)
 
+        ### TODO:: send tcp message
+        if ball2.rect.colliderect(obj.rect) and obj.obj_type == 'paddle' and obj.player_number == 1:
+            # then we have collided with our own paddle
+            ball2.speed[1] *= -1
+
+        if ball2.rect.colliderect(obj.rect) and obj.obj_type == 'brick': 
+            # we have hit a brick so change directions
+            ball2.speed[1] *= -1
+            allsprites.remove(obj)
+
     if ball1.rect.right > SCREEN_SIZE[0] - BALL_SIZE[0]: # if we hit the right side
         ball1.speed[0] *= -1
 
@@ -140,8 +153,6 @@ def main(objects):
     if ball1.rect.top < 0 + BALL_SIZE[1]: # top
         ball1.speed[1] *= -1
 
-    
-    message_broker.messages_to_send.append('hello from p1!')
     # send necessary data to p2 client
     for message in message_broker.messages_to_send:
         sender.myconn.transport.write(message.encode('ascii', 'ignore'))
@@ -150,6 +161,11 @@ def main(objects):
     # for each message coming from p2, do something about it
     for message in message_broker.messages_received:
         print('Received:', message)
+        #message = message.decode('utf-8')
+        if message == 'paddle move right':
+            paddle2.move('right')
+        elif message == 'paddle move left':
+            paddle2.move('left')
         del message
 
     message_broker.messages_received = []
@@ -172,7 +188,7 @@ class TPCSend(Protocol):
         print('connection made! TPCSend')
         sender.myconn.transport.write('begin!'.encode('ascii', 'ignore'))
         f = LoopingCall(main, (obj_dict))
-        f.start(.1)
+        f.start(.0166)
         #main()
         pass
     def dataReceived(self, data):
