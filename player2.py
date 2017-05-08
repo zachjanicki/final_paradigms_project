@@ -117,9 +117,23 @@ def main(objects):
         sender.myconn.transport.write(message.encode('ascii', 'ignore'))
     message_broker.messages_to_send = []
 
-    # for each message coming from p2, do something about it
+    # for each message coming from p1, do something about it
     for message in message_broker.messages_received:
         print('Received:', message)
+        if message == 'paddle move right':
+            paddle1.move('right')
+        elif message == 'paddle move left':
+            paddle1.move('left')
+        elif message == 'invert ball direction':
+            ball1.speed[1] *= -1
+        elif isinstance(message, int):
+            for obj in allsprites:
+                if obj.id == message:
+                    allsprites.remove(obj)
+        elif message == 'ball1 move':
+            ball1.speed = [5,5]
+        elif message == 'ball2 move':
+            ball2.speed = [-5,-5]
         del message
 
     message_broker.messages_received = []

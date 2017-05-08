@@ -107,27 +107,35 @@ def main(objects):
     allsprites = objects['allsprites']
     if ball1.speed == None:
         ball1.speed = [5, 5]
+        message_broker.messages_to_send.append('ball1 move')
     if ball2.speed == None:
         ### TODO:: send tcp message of current speed
         ball2.speed = [-5, -5]
+        message_broker.messages_to_send.append('ball2 move')
     #clock.tick(120)
     for e in pygame.event.get():
         if e.type == QUIT:
             running = False
         elif e.type == KEYDOWN and e.key == K_RIGHT:
             paddle1.move('right')
+            m = 'paddle move right'
+            message_broker.messages_to_send.append(m)
         elif e.type == KEYDOWN and e.key == K_LEFT:
             paddle1.move('left')
-
+            m = 'paddle move left'
+            message_broker.messages_to_send.append(m)
     for obj in allsprites:
         if ball1.rect.colliderect(obj.rect) and obj.obj_type == 'paddle' and obj.player_number == 1:
             # then we have collided with our own paddle
             ball1.speed[1] *= -1
-
+            m = 'invert ball direction'
+            message_broker.messages_to_send.append(m)            
         if ball1.rect.colliderect(obj.rect) and obj.obj_type == 'brick': 
             # we have hit a brick so change directions
             ball1.speed[1] *= -1
             allsprites.remove(obj)
+            #print(obj.id)
+            message_broker.messages_to_send.append(obj.id)
 
         ### TODO:: send tcp message
         if ball2.rect.colliderect(obj.rect) and obj.obj_type == 'paddle' and obj.player_number == 2:
@@ -155,6 +163,7 @@ def main(objects):
 
     # send necessary data to p2 client
     for message in message_broker.messages_to_send:
+        print(message)
         sender.myconn.transport.write(message.encode('ascii', 'ignore'))
     message_broker.messages_to_send = []
 
