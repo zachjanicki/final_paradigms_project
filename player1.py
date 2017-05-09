@@ -106,11 +106,11 @@ def main(objects):
     ball2 = objects['ball2']
     allsprites = objects['allsprites']
     if ball1.speed == None:
-        ball1.speed = [5, 5]
+        ball1.speed = [3, 3]
         #message_broker.messages_to_send.append('ball1 move')
     if ball2.speed == None:
         ### TODO:: send tcp message of current speed
-        ball2.speed = [-5, -5]
+        ball2.speed = [-3, -3]
         #message_broker.messages_to_send.append('ball2 move')
     #clock.tick(120)
     for e in pygame.event.get():
@@ -129,83 +129,83 @@ def main(objects):
             # then we have collided with our own paddle
             ball1.speed[1] *= -1
             m = 'invert ball1 y_direction'
-            message_broker.messages_to_send.append(m)            
+            #message_broker.messages_to_send.append(m)            
         if ball1.rect.colliderect(obj.rect) and obj.obj_type == 'brick': 
             # we have hit a brick so change directions
             ball1.speed[1] *= -1
             allsprites.remove(obj)
             m = 'invert ball1 y_direction'
-            message_broker.messages_to_send.append(m)
+            #message_broker.messages_to_send.append(m)
             m = 'delete brick ' + str(obj.id)
-            message_broker.messages_to_send.append(m)
+            #message_broker.messages_to_send.append(m)
 
         ### TODO:: send tcp message
         if ball2.rect.colliderect(obj.rect) and obj.obj_type == 'paddle' and obj.player_number == 2:
             # then we have collided with our own paddle
             ball2.speed[1] *= -1
             m = 'invert ball2 y_direction'
-            message_broker.messages_to_send.append(m)
+            #message_broker.messages_to_send.append(m)
 
         if ball2.rect.colliderect(obj.rect) and obj.obj_type == 'brick': 
             # we have hit a brick so change directions
             ball2.speed[1] *= -1
             allsprites.remove(obj)
             m = 'invert ball2 y_direction'
-            message_broker.messages_to_send.append(m)
+            #message_broker.messages_to_send.append(m)
             m = 'delete brick ' + str(obj.id)
-            message_broker.messages_to_send.append(m)
+            #message_broker.messages_to_send.append(m)
 
     #### ball2 wall collisions
     if ball1.rect.right > SCREEN_SIZE[0] - BALL_SIZE[0]: # if we hit the right side
         ball1.speed[0] *= -1
         m = 'invert ball1 x_direction'
-        message_broker.messages_to_send.append(m)
+        #message_broker.messages_to_send.append(m)
 
     if ball1.rect.left < 0 + BALL_SIZE[0]: # left
         ball1.speed[0] *= -1
         m = 'invert ball1 x_direction'
-        message_broker.messages_to_send.append(m)
+        #message_broker.messages_to_send.append(m)
 
     if ball1.rect.bottom > SCREEN_SIZE[1] - BALL_SIZE[1]: # bottom
         allsprites.remove(ball1)
-        del ball1
+        #del ball1
         '''
         ball1 = Ball(1)
         allsprites.add(pygame.sprite.RenderPlain(ball1))
         ball1.speed = [5, 5]
         m = 'new ball1'
-        message_broker.messages_to_send.append(m)
+        #message_broker.messages_to_send.append(m)
         '''
     if ball1.rect.top < 0 + BALL_SIZE[1]: # top
         ball1.speed[1] *= -1
         m = 'invert ball1 y_direction'
-        message_broker.messages_to_send.append(m)
+        #message_broker.messages_to_send.append(m)
 
     #### ball2 wall collisions
     if ball2.rect.right > SCREEN_SIZE[0] - BALL_SIZE[0]: # if we hit the right side
         ball2.speed[0] *= -1
         m = 'invert ball2 x_direction'
-        message_broker.messages_to_send.append(m)
+        #message_broker.messages_to_send.append(m)
 
     if ball2.rect.left < 0 + BALL_SIZE[0]: # left
         ball2.speed[0] *= -1
         m = 'invert ball2 x_direction'
-        message_broker.messages_to_send.append(m)
+        #message_broker.messages_to_send.append(m)
 
     if ball2.rect.bottom > SCREEN_SIZE[1] - BALL_SIZE[1]: # bottom
         ball2.speed[1] *= -1
         m = 'invert ball2 y_direction'
-        message_broker.messages_to_send.append(m)
+        #message_broker.messages_to_send.append(m)
 
     if ball2.rect.top < 0 + BALL_SIZE[1]: # top
         allsprites.remove(ball2)
-        del ball2
+        #del ball2
         '''
         ball2 = Ball(2)
         allsprites.add(pygame.sprite.RenderPlain(ball2))
         ball2.speed = [-5, -5]
         m = 'new ball2'
-        message_broker.messages_to_send.append(m)
+        #message_broker.messages_to_send.append(m)
         '''
 
     # send necessary data to p2 client
@@ -244,7 +244,7 @@ class TPCSend(Protocol):
         print('connection made! TPCSend')
         sender.myconn.transport.write('begin!'.encode('ascii', 'ignore'))
         f = LoopingCall(main, (obj_dict))
-        f.start(.0166)
+        f.start(.001)
         #main()
         pass
     def dataReceived(self, data):

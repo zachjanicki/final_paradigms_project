@@ -59,8 +59,14 @@ class Brick(pygame.sprite.Sprite):
             self.surface.fill(BLUE)
         elif brick_id < 20:
             self.surface.fill(RED)
-        else:
+        elif brick_id < 30:
             self.surface.fill(GREEN)
+        elif brick_id < 40:
+            self.surface.fill(GREEN)
+        elif brick_id < 50:
+            self.surface.fill(RED)
+        elif brick_id < 60:
+            self.surface.fill(BLUE)
         self.rect = self.rect.move(starting_location)
 
     def update(self):
