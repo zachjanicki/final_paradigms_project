@@ -49,17 +49,17 @@ for i in range(TOTAL_BRICKS_PER_PLAYER):
     if i < 10: # lowest row of bricks
         b1 = Brick(i, BRICK_HEALTH, (i * PADDLE_WIDTH, P1_BRICK_POS_Y), 1)
         p1_bricks.append(b1)
-        b2 = Brick(i, BRICK_HEALTH, (i * PADDLE_WIDTH, P2_BRICK_POS_Y), 2)
+        b2 = Brick(i + TOTAL_BRICKS_PER_PLAYER, BRICK_HEALTH, (i * PADDLE_WIDTH, P2_BRICK_POS_Y), 2)
         p2_bricks.append(b2)
     elif i < 20:
         b1 = Brick(i, BRICK_HEALTH, ((i - 10) * PADDLE_WIDTH, P1_BRICK_POS_Y + PADDLE_HEIGHT), 1)
         p1_bricks.append(b1)
-        b2 = Brick(i, BRICK_HEALTH, ((i - 10) * PADDLE_WIDTH, P2_BRICK_POS_Y + PADDLE_HEIGHT), 2)
+        b2 = Brick(i + TOTAL_BRICKS_PER_PLAYER, BRICK_HEALTH, ((i - 10) * PADDLE_WIDTH, P2_BRICK_POS_Y + PADDLE_HEIGHT), 2)
         p2_bricks.append(b2)
     else:
         b1 = Brick(i, BRICK_HEALTH, ((i - 20) * PADDLE_WIDTH, P1_BRICK_POS_Y + PADDLE_HEIGHT * 2), 1)
         p1_bricks.append(b1)
-        b2 = Brick(i, BRICK_HEALTH, ((i - 20) * PADDLE_WIDTH, P2_BRICK_POS_Y + PADDLE_HEIGHT * 2), 2)
+        b2 = Brick(i + TOTAL_BRICKS_PER_PLAYER, BRICK_HEALTH, ((i - 20) * PADDLE_WIDTH, P2_BRICK_POS_Y + PADDLE_HEIGHT * 2), 2)
         p2_bricks.append(b2)
 ball1 = Ball(1)
 ball2 = Ball(2)
@@ -99,6 +99,10 @@ def main(objects):
     ball1 = objects['ball1']
     ball2 = objects['ball2']
     allsprites = objects['allsprites']
+    if ball1.speed == None:
+        ball1.speed = [5, 5]
+    if ball2.speed == None:
+        ball2.speed = [-5, -5]
     for e in pygame.event.get():
         if e.type == QUIT:
             running = False
@@ -124,16 +128,41 @@ def main(objects):
             paddle1.move('right')
         elif message == 'paddle move left':
             paddle1.move('left')
-        elif message == 'invert ball direction':
+        elif message == 'invert ball1 y_direction':
             ball1.speed[1] *= -1
+        elif message == 'invert ball2 y_direction':
+            ball2.speed[1] *= -1
+        elif message == 'invert ball1 x_direction':
+            ball1.speed[0] *= -1
+        elif message == 'invert ball2 x_direction':
+            ball2.speed[0] *= -1
+        elif message == 'new ball1':
+            '''
+            allsprites.remove(ball1)
+            del ball1
+            ball1 = Ball(1)
+            allsprites.add(pygame.sprite.RenderPlain(ball1))
+            ball1.speed = [5, 5]
+            '''
+        elif message == 'new ball2':
+            '''
+            allsprites.remove(ball2)
+            del ball2
+            ball2 = Ball(2)
+            allsprites.add(pygame.sprite.RenderPlain(ball2))
+            ball2.speed = [-5, -5]
+            '''
+        elif message.split()[0] == 'delete':
+            message = message.split()
+            for obj in allsprites:
+                if obj.id == int(message[2]):
+                    allsprites.remove(obj)
+        '''
         elif isinstance(message, int):
             for obj in allsprites:
                 if obj.id == message:
                     allsprites.remove(obj)
-        elif message == 'ball1 move':
-            ball1.speed = [5,5]
-        elif message == 'ball2 move':
-            ball2.speed = [-5,-5]
+        '''
         del message
 
     message_broker.messages_received = []
